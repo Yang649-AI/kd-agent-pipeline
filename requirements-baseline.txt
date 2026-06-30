@@ -1,0 +1,14 @@
+langchain
+langchain-core
+langchain-community
+langchain-chroma
+langchain-huggingface
+langchain-ollama
+chromadb
+sentence-transformers
+pymupdf
+pandas
+numpy
+tqdm
+transformers
+accelerate

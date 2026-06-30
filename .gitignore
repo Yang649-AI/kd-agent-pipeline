@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments / Conda environments
+envs/
+.venv/
+venv/
+conda_pkgs/
+
+# Cache
+cache/
+.cache/
+*.cache
+
+# Models
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# Data
+data/raw/
+data/processed/
+data/indexes/
+*.pdf
+*.epub
+*.mp3
+*.wav
+*.flac
+
+# Outputs and logs
+outputs/
+logs/
+*.log
+
+# Vector databases
+chroma/
+vectorstore/
+*.faiss
+*.index
+
+# Secrets
+.env
+*.key
+*.pem
+id_rsa
+id_rsa.pub
+
+# System / editor
+.DS_Store
+.ipynb_checkpoints/
+.vscode-server/

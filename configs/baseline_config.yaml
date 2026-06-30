@@ -1,0 +1,30 @@
+baseline:
+  name: "LangChain + 标准 RAG + Qwen-8B-Instruct"
+  framework: "LangChain"
+  rag_type: "standard_rag"
+
+model:
+  required_model_family: "Qwen"
+  required_model_scale: "8B"
+  required_model_type: "Instruct"
+  runtime: "ollama"
+  actual_model: "qwen-8b-instruct-baseline"
+  note: "实际运行模型由 Qwen3-8B-Q4_K_M.gguf 通过 Ollama Modelfile 构建，用于复现任务书规定的 Qwen-8B-Instruct 基线。"
+
+retrieval:
+  vector_store: "Chroma"
+  embedding_model: "BAAI/bge-small-zh-v1.5"
+  chunk_size: 1000
+  chunk_overlap: 200
+  top_k: 5
+
+generation:
+  temperature: 0
+  num_ctx: 4096
+
+disabled_optimizations:
+  adaptive_chunking: false
+  rerank: false
+  context_compression: false
+  dynamic_top_k: false
+  lora: false
