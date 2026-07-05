@@ -68,6 +68,7 @@ kd_agent_pipeline/
 ├── requirements-baseline.txt
 ├── .gitignore
 └── README.md
+```
 
 ## 4. 环境准备
 
@@ -109,4 +110,4 @@ python scripts/04_generate_baseline_report.py
 
 当前 smoke test 主要基于 cs-eg.pdf 完成，该 PDF 可被 PyMuPDF 正常抽取文字。
 
-cs-cn.pdf 为扫描版或图片版 PDF，PyMuPDF 抽取前 10 页文字长度均为 0，因此未进入当前 baseline 向量库。该问题可作为后续正式系统加入 OCR 解析模块的改进依据。
+cs-cn.pdf 为扫描版或图片版 PDF，PyMuPDF 抽取前 10 页文字长度均为 0，因此未进入当前 baseline 向量库。
