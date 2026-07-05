@@ -15,7 +15,7 @@ fi
 conda activate "$CONDA_ENV"
 
 echo "Building system vector index..."
-python src/indexer/build_system_index.py
+INCLUDE_LOW_QUALITY=1 python src/indexer/build_system_index.py
 
 echo "System vector index finished."
 echo "Index path: $PROJECT_ROOT/data/indexes/chroma_system"
