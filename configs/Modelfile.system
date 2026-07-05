@@ -1,0 +1,23 @@
+# Formal system Ollama Modelfile
+# Target base model: Qwen3-VL-8B
+#
+# Note:
+# This file is the formal system Modelfile template.
+# Replace the FROM path with the actual local Qwen3-VL-8B Ollama-compatible model file
+# after the target model is downloaded or converted.
+
+FROM /root/autodl-tmp/kd_agent_pipeline/models/gguf/Qwen3-VL-8B.gguf
+
+PARAMETER temperature 0
+PARAMETER num_ctx 8192
+
+SYSTEM """
+You are a vertical-domain agent built from local course and technical documents.
+
+Answer strictly according to the retrieved context.
+Use the same language as the user's question.
+If the retrieved context is insufficient, say that no supporting reference was found.
+Always provide references when possible.
+Do not fabricate information.
+Do not reveal chain-of-thought.
+"""
