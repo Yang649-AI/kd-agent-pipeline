@@ -1,0 +1,75 @@
+name: System RAG + Knowledge Distillation Agent Pipeline
+
+task_role: formal_system
+
+target_base_model:
+  name: Qwen3-VL-8B
+  modality: vision-language
+  fine_tunable: true
+  note: >
+    This is the target base model required by the formal system.
+    The current system RAG runner may still use a temporary Ollama text model
+    for pipeline validation before Qwen3-VL-8B deployment is completed.
+
+runtime:
+  engine: ollama
+  target_model_name: qwen3-vl-8b-system
+  current_validation_model: qwen-8b-instruct-baseline
+
+knowledge_pipeline:
+  parser: src/parser/parse_pdf_pages.py
+  chunker: src/chunker/build_text_chunks.py
+  indexer: src/indexer/build_system_index.py
+  agent_runner: src/agent/run_system_rag.py
+
+data_paths:
+  raw_data_dir: data/raw
+  parsed_pages: data/processed/parsed_pages.jsonl
+  text_chunks: data/processed/text_chunks.jsonl
+  ocr_todo_pages: data/processed/ocr_todo_pages.jsonl
+  vector_index_dir: data/indexes/chroma_system
+
+embedding:
+  model_name: BAAI/bge-small-zh-v1.5
+  normalize_embeddings: true
+
+retrieval:
+  vector_store: chroma
+  collection_name: system_rag
+  top_k: 5
+  citation_required: true
+
+chunk_quality_control:
+  enabled: true
+  fields:
+    - quality_score
+    - is_low_quality
+    - quality_reasons
+    - content_role
+  strategy: >
+    Keep all chunks in the system index during early validation,
+    but preserve quality metadata for later reranking and filtering.
+
+multimodal_processing:
+  enabled: planned
+  scanned_pdf_detection: true
+  ocr_todo_list: data/processed/ocr_todo_pages.jsonl
+  image_page_processing: planned
+  figure_table_understanding: planned
+
+fine_tuning:
+  method: LoRA
+  status: planned
+  trainable_base_model: Qwen3-VL-8B
+  output_adapter_dir: models/adapters/qwen3-vl-8b-system-lora
+
+baseline_comparison:
+  baseline_name: LangChain + Standard RAG + Qwen-8B-Instruct
+  baseline_config: configs/baseline_config.yaml
+  comparison_dimensions:
+    - retrieval_quality
+    - answer_groundedness
+    - citation_correctness
+    - latency
+    - token_usage
+    - multimodal_document_support
