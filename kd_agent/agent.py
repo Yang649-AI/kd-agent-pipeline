@@ -53,27 +53,46 @@ def compress_context(question: str, chunks: list[KnowledgeChunk], max_tokens: in
     return "\n\n".join(selected), citations
 
 
+def _is_evidence_sentence(sentence: str) -> bool:
+    stripped = sentence.strip()
+    if not stripped or stripped.lstrip().startswith("#"):
+        return False
+    if len(stripped) < 18:
+        return False
+    alnum = sum(1 for ch in stripped if ch.isalnum() or "\u4e00" <= ch <= "\u9fff")
+    if alnum / max(1, len(stripped)) < 0.35:
+        return False
+    heading_markers = ("section ", "chapter ", "preface", "bibliographic notes", "homework problems")
+    lower = stripped.lower()
+    if any(lower == marker.strip() or lower.startswith(marker) and len(stripped) < 80 for marker in heading_markers):
+        return False
+    return True
+
+
 def grounded_extractive_answer(question: str, chunks: list[KnowledgeChunk]) -> str:
-    if not chunks:
-        return "未找到参考资料"
-
-    best_source = 0
-    best_score = 0
+    candidates: list[tuple[int, int, int, str]] = []
     for source_no, chunk in enumerate(chunks, start=1):
-        score = keyword_overlap(question, " ".join(chunk.title_path) + " " + chunk.text)
-        if score > best_score:
-            best_source = source_no
-            best_score = score
+        for sent_no, sent in enumerate(split_sentences(chunk.text)):
+            if not _is_evidence_sentence(sent):
+                continue
+            score = keyword_overlap(question, sent)
+            title_score = keyword_overlap(question, " ".join(chunk.title_path))
+            if score > 0 or title_score > 0:
+                candidates.append((score + title_score, -source_no, -sent_no, sent.strip()))
 
-    if best_score == 0:
+    if not candidates:
         return "未找到参考资料"
 
-    chunk = chunks[best_source - 1]
-    sentences = [s for s in split_sentences(chunk.text) if not s.lstrip().startswith("#")]
-    evidence = sentences[:3]
-    if not evidence:
-        evidence = [chunk.text]
-    return " ".join(f"{sent} [S{best_source}]" for sent in evidence)
+    candidates.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
+    answer_sents: list[str] = []
+    for _, neg_source_no, _, sent in candidates:
+        source_no = -neg_source_no
+        rendered = f"{sent} [S{source_no}]"
+        if rendered not in answer_sents:
+            answer_sents.append(rendered)
+        if len(answer_sents) >= 3:
+            break
+    return " ".join(answer_sents) if answer_sents else "未找到参考资料"
 
 
 def answer_question(index: LocalTfidfIndex, question: str, top_k: int = 5, context_tokens: int = 900) -> AnswerResult:
