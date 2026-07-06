@@ -1,0 +1,6 @@
+{"id":"cs_001","discipline":"cs","question":"What is virtual memory and why is it useful?","expected_chunk_ids":["computer_systems_notes:c002"],"answer_terms":["private","address","page"]}
+{"id":"cs_002","discipline":"cs","question":"What state and resources are associated with a process?","expected_chunk_ids":["computer_systems_notes:c003"],"answer_terms":["virtual","address","register"]}
+{"id":"cs_003","discipline":"cs","question":"How does cache memory exploit locality?","expected_chunk_ids":["computer_systems_notes:c004"],"answer_terms":["temporal","spatial","miss"]}
+{"id":"cs_004","discipline":"cs","question":"Give examples of exceptional control flow in operating systems.","expected_chunk_ids":["computer_systems_notes:c005"],"answer_terms":["interrupts","traps","signals"]}
+{"id":"cs_005","discipline":"cs","question":"What does Amdahl's Law say about system speedup?","expected_chunk_ids":["computer_systems_notes:c006"],"answer_terms":["speedup","fraction","bottlenecks"]}
+{"id":"cs_006","discipline":"cs","question":"How does RAG reduce hallucination in an educational agent?","expected_chunk_ids":["computer_systems_notes:c007"],"answer_terms":["retrieving","evidence","cite"]}

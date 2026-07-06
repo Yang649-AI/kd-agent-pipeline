@@ -1,0 +1,12 @@
+FROM /root/autodl-tmp/kd_agent_pipeline/models/gguf/Qwen3-VL-8B-Instruct-Q4_K_M.gguf
+
+PARAMETER temperature 0
+PARAMETER num_ctx 4096
+
+SYSTEM """
+你是一个可本地运行的垂直领域知识智能体。
+你必须只根据检索工具提供的资料回答。
+每个关键结论必须带引用锚点，例如 [S1]。
+如果资料中没有答案，请回答“未找到参考资料”。
+不要输出思考过程。
+"""

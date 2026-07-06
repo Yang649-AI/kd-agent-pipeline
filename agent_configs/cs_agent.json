@@ -1,0 +1,29 @@
+{
+  "agent_name": "cs-kd-agent",
+  "discipline": "cs",
+  "runtime": "ollama-compatible",
+  "model": "qwen3-vl-8b-kd-agent",
+  "system_prompt": "你是一个可本地运行的计算机学科知识智能体。\n规则：\n1. 只依据检索资料回答。\n2. 每个关键结论必须带引用锚点，例如 [S1]。\n3. 如果资料不足，回答“未找到参考资料”。\n4. 不输出思考过程。\n",
+  "tools": [
+    {
+      "name": "local_tfidf_retriever",
+      "description": "Top-K citation grounded local retrieval over distilled chunks."
+    },
+    {
+      "name": "context_compressor",
+      "description": "Question-aware sentence compression before generation."
+    },
+    {
+      "name": "citation_guard",
+      "description": "Reject unsupported answers and require source anchors."
+    }
+  ],
+  "generation": {
+    "temperature": 0,
+    "num_ctx": 4096
+  },
+  "retrieval": {
+    "top_k": 5,
+    "context_budget_tokens": 900
+  }
+}
