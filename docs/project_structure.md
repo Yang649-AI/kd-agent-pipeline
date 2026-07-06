@@ -7,7 +7,7 @@
 | 路径 | 职责 |
 | --- | --- |
 | `agent_configs/` | 标准化智能体配置，例如 system prompt、工具链和检索参数。 |
-| `configs/` | Baseline、early system、kd_agent 的配置和 Ollama Modelfile。 |
+| `configs/` | Baseline、early system、kd_agent 的配置、Ollama Modelfile 和数据集 schema。 |
 | `data/eval/` | 小型评测问题、关键词标注、语言标注等可复现评测入口。 |
 | `data/sample/` | 可提交的小型样例资料，用于无 raw PDF 时跑通闭环。 |
 | `docs/` | 架构设计、目录说明和后续可扩展文档。 |
@@ -37,7 +37,11 @@
 - `05_*` 到 `06_*`：early system 报告和 baseline/system 对比。
 - `10_*` 到 `12_*`：轻量 `kd_agent` 样例闭环。
 - `13_run_bilingual_raw_pdf_eval.py`：中文 OCR + 英文 PDF 的双语联合评测。
-- `run_*.sh`：对应流程的一键封装。
+- `run_*.sh`：对应流程的一键封装，包括 baseline、parser、chunker、system indexer、system RAG 和 kd_agent。
+
+## 数据盘本地资产
+
+服务器数据盘目录保留运行所需的大文件和缓存，例如 `data/raw/`、`models/`、`envs/`、`cache/`、`outputs/`。这些目录不上传 GitHub，但属于服务器项目运行资产，不应与源码交付物混淆。
 
 ## 报告取舍
 

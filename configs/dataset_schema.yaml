@@ -1,0 +1,83 @@
+# Multidiscipline dataset schema for the formal system
+
+project:
+  name: kd_agent_pipeline
+  purpose: >
+    Build a standardized multidiscipline dataset and evaluation schema
+    for the knowledge distillation and agent generation pipeline.
+
+disciplines:
+  cs:
+    name: Computer Science
+    required: true
+  law:
+    name: Law
+    required: true
+  medicine:
+    name: Clinical Medicine
+    required: true
+
+raw_data_layout:
+  root: data/raw
+  accepted_layouts:
+    - data/raw/{discipline}/pdf
+    - data/raw/{discipline}/scanned
+    - data/raw/{discipline}/audio
+    - data/raw/{discipline}/image
+    - data/raw/{discipline}/epub
+    - data/raw/{discipline}/*.pdf
+
+required_modalities:
+  text_pdf:
+    extensions: [".pdf"]
+    description: text-based PDF documents
+  scanned_pdf:
+    extensions: [".pdf", ".png", ".jpg", ".jpeg"]
+    description: scanned PDFs or image-based documents
+  audio:
+    extensions: [".mp3", ".wav", ".flac", ".m4a"]
+    description: local lecture audio or speech files
+  image:
+    extensions: [".png", ".jpg", ".jpeg", ".svg"]
+    description: figures, charts, diagrams, or formula images
+  epub:
+    extensions: [".epub"]
+    description: EPUB books or course materials
+
+final_dataset_requirements:
+  discipline_count: 3
+  required_disciplines:
+    - cs
+    - law
+    - medicine
+  min_pages_per_discipline: 100
+  min_representative_books_per_discipline: 1
+  must_include_ground_truth: true
+  must_include_mixed_samples: true
+  required_question_fields:
+    - id
+    - discipline
+    - modality
+    - question
+    - expected_source_type
+    - status
+    - ground_truth_answer
+    - expected_citations
+    - ground_truth_status
+
+question_status:
+  active: ready for evaluation
+  pending_data: raw data is not ready
+  pending_annotation: raw data exists but ground truth is not ready
+  disabled: excluded from evaluation
+
+ground_truth_status:
+  verified: manually checked and ready for evaluation
+  pending: not ready for formal evaluation
+
+current_stage:
+  name: dataset_scaffold_and_validation
+  description: >
+    This stage establishes dataset layout, question schema, ground truth schema,
+    and validation scripts. It does not claim that the final three-discipline
+    dataset is complete.

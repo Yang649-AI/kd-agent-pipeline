@@ -8,6 +8,7 @@
 - `src/`：早期正式系统链路，包含 PDF 解析、文本清洗分块、Chroma 索引和系统 RAG runner。
 - `kd_agent/`：轻量、可离线运行的正式交付管线，包含解析、语义分块、本地 TF-IDF 检索、上下文压缩、引用约束回答和评测报告生成。
 - `scripts/13_run_bilingual_raw_pdf_eval.py`：双语 raw PDF 评测脚本，可把中文扫描教材 OCR 片段和英文教材文本 chunk 放入同一个索引。
+- `configs/dataset_schema.yaml`：三学科正式数据集布局与标注字段规范。
 
 ## 最新双语评测
 
@@ -56,7 +57,7 @@ apt-get install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-eng
 ```text
 kd_agent_pipeline/
 ├── agent_configs/                  # 生成/维护的智能体配置
-├── configs/                        # Ollama Modelfile 与 baseline/system 配置
+├── configs/                        # Ollama Modelfile、pipeline 配置与数据集规范
 ├── data/
 │   ├── eval/                       # 评测问题与 ground truth/关键词标注
 │   └── sample/                     # 可提交的小型样例资料
@@ -96,6 +97,7 @@ bash scripts/run_baseline.sh
 bash scripts/run_parser.sh
 bash scripts/run_chunker.sh
 bash scripts/run_system_indexer.sh
+bash scripts/run_system_rag.sh
 ```
 
 双语 raw PDF 评测：
