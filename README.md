@@ -22,9 +22,20 @@
 
 ## 快速运行
 
+Linux/macOS：
+
 ```bash
-cd /root/.codex/worktrees/8564/kd_agent_pipeline
+cd /path/to/kd-agent-pipeline
 bash run.sh
+```
+
+Windows + Conda：
+
+```powershell
+cd D:\program\code\Python\kd-agent-pipeline
+conda activate kd-agent-pipeline-gpu
+$env:KD_AGENT_PROJECT_ROOT="D:\program\code\Python\kd-agent-pipeline"
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 ```
 
 运行后会生成：
@@ -89,11 +100,43 @@ bash scripts/run_kd_agent.sh
 
 baseline 保留原始设计：LangChain + Chroma + BAAI/bge-small-zh-v1.5 + Ollama Qwen-8B-Instruct。
 
+本地环境准备：
+
+```bash
+cd /path/to/kd-agent-pipeline
+source setup_paths.sh
+conda activate "${KD_AGENT_CONDA_ENV:-kd-agent-pipeline-gpu}"
+python -m pip install -r requirements-baseline.txt
+```
+
+Windows + Conda 可使用：
+
+```powershell
+cd D:\program\code\Python\kd-agent-pipeline
+conda activate kd-agent-pipeline-gpu
+$env:KD_AGENT_PROJECT_ROOT="D:\program\code\Python\kd-agent-pipeline"
+```
+
+运行 baseline：
+
+```bash
+python scripts/01_build_baseline_index.py
+python scripts/02_run_baseline.py
+python scripts/03_calc_baseline_metrics.py
+python scripts/04_generate_baseline_report.py
+```
+
+也可以直接运行：
+
 ```bash
 bash scripts/run_baseline.sh
 ```
 
 注意：baseline 依赖较重，需要本地已有模型、Ollama、embedding 模型缓存或网络下载能力。
+
+当前 smoke test 主要基于 `cs-eg.pdf` 完成，该 PDF 可被 PyMuPDF 正常抽取文字。
+
+`cs-cn.pdf` 为扫描版或图片版 PDF，PyMuPDF 抽取前 10 页文字长度均为 0，因此未进入当前 baseline 向量库。
 
 ## Ollama 集成
 
@@ -125,7 +168,7 @@ ollama create qwen3-vl-8b-kd-agent -f configs/Modelfile.kd_agent
 
 ## 后续扩展
 
-- 将 `data/sample/cs/` 替换为正式 ≥100 页计算机教材或讲义。
+- 将 `data/sample/cs/` 替换为正式 >=100 页计算机教材或讲义。
 - 新增 `data/sample/medicine`、`data/sample/law` 与对应 eval JSONL 后即可扩展三学科评测。
 - 接入本地 OCR/ASR：PaddleOCR/Tesseract、whisper.cpp 或 faster-whisper。
 - 接入 Ollama 生成式回答，并复测 token、延迟、Hit@5 和无引用生成率。

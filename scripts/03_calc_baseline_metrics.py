@@ -1,11 +1,16 @@
 import json
 from pathlib import Path
+import sys
 import pandas as pd
 
 
-RESULT_PATH = Path("outputs/baseline/baseline_results.jsonl")
-METRIC_PATH = Path("outputs/baseline/baseline_metrics.json")
-CSV_PATH = Path("outputs/baseline/baseline_results_summary.csv")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from common.paths import PROJECT_ROOT
+
+
+RESULT_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_results.jsonl"
+METRIC_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_metrics.json"
+CSV_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_results_summary.csv"
 
 
 def load_jsonl(path: Path):

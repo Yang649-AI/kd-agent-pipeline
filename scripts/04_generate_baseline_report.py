@@ -1,11 +1,16 @@
 import json
 from pathlib import Path
+import sys
 from datetime import datetime
 
 
-METRIC_PATH = Path("outputs/baseline/baseline_metrics.json")
-RESULT_PATH = Path("outputs/baseline/baseline_results.jsonl")
-REPORT_PATH = Path("reports/baseline_reproduction.md")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from common.paths import PROJECT_ROOT
+
+
+METRIC_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_metrics.json"
+RESULT_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_results.jsonl"
+REPORT_PATH = PROJECT_ROOT / "reports" / "baseline_reproduction.md"
 
 
 def load_json(path: Path):

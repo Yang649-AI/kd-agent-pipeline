@@ -1,10 +1,12 @@
 import json
 import re
 from pathlib import Path
+import sys
 from typing import Dict, List, Tuple
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from common.paths import PROJECT_ROOT
 
 INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "parsed_pages.jsonl"
 CHUNK_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"

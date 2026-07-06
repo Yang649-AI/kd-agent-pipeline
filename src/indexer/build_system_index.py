@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+import sys
 from typing import List
 
 import torch
@@ -10,7 +11,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from common.paths import PROJECT_ROOT
 
 CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 PERSIST_DIR = PROJECT_ROOT / "data" / "indexes" / "chroma_system"

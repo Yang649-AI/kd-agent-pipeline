@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 from tqdm import tqdm
 
 import torch
@@ -8,7 +9,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from common.paths import PROJECT_ROOT
+
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 PERSIST_DIR = str(PROJECT_ROOT / "data" / "indexes" / "chroma_baseline")
 

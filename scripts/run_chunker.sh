@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_ROOT="/root/autodl-tmp/kd_agent_pipeline"
-CONDA_ENV="$PROJECT_ROOT/envs/kd_agent"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${KD_AGENT_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+CONDA_ENV="${KD_AGENT_CONDA_ENV:-kd-agent-pipeline-gpu}"
 
 cd "$PROJECT_ROOT"
 

@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
+import sys
 from collections import Counter
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from common.paths import PROJECT_ROOT
 
 SYSTEM_RESULT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"
 CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
