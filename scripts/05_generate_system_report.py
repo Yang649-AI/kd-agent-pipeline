@@ -6,11 +6,10 @@ from collections import Counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from common.paths import PROJECT_ROOT
+from common.system_pipeline_paths import resolve_system_pipeline_paths
 
-SYSTEM_RESULT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"
 CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 OCR_TODO_PATH = PROJECT_ROOT / "data" / "processed" / "ocr_todo_pages.jsonl"
-REPORT_PATH = PROJECT_ROOT / "reports" / "system_pipeline_smoke_test.md"
 
 
 def load_jsonl(path: Path):
@@ -100,15 +99,19 @@ def summarize_results(results):
 
 
 def main():
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    pipeline_paths = resolve_system_pipeline_paths()
+    system_result_path = pipeline_paths.output_path
+    report_path = pipeline_paths.report_path
 
-    results = load_jsonl(SYSTEM_RESULT_PATH)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    results = load_jsonl(system_result_path)
     chunks = load_jsonl(CHUNK_PATH)
     ocr_todo = load_jsonl(OCR_TODO_PATH)
 
     if not results:
         raise FileNotFoundError(
-            f"No system RAG result found at {SYSTEM_RESULT_PATH}. "
+            f"No system RAG result found at {system_result_path}. "
             "Please run scripts/run_system_rag.sh first."
         )
 
@@ -213,9 +216,9 @@ def main():
     )
     lines.append("")
 
-    REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
+    report_path.write_text("\n".join(lines), encoding="utf-8")
 
-    print(f"System report generated: {REPORT_PATH}")
+    print(f"System report generated: {report_path}")
     print(f"Questions: {result_summary['total']}")
     print(f"Answered: {result_summary['answered']}")
     print(f"Not found: {result_summary['not_found']}")

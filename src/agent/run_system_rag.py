@@ -13,34 +13,40 @@ from langchain_core.prompts import ChatPromptTemplate
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from agent.system_fallback import build_extractive_fallback_answer
+from agent.answer_postprocess import clean_ollama_answer
+from common.console_text import sanitize_for_console
 from common.paths import PROJECT_ROOT
+from common.system_pipeline_paths import resolve_system_pipeline_paths
 
-EVAL_PATH = PROJECT_ROOT / "data" / "eval" / "baseline_smoke_questions.jsonl"
-OUTPUT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"
 PERSIST_DIR = str(PROJECT_ROOT / "data" / "indexes" / "chroma_system")
 
 MODEL_NAME = "qwen-8b-instruct-baseline"
 TOP_K = 4
 
-SYSTEM_PROMPT = """你是一个基于本地资料构建的垂直领域智能体。
-请严格依据检索到的资料回答问题。
+SYSTEM_PROMPT = """You are a vertical-domain agent grounded only in local documents.
 
-回答要求：
-1. 只能根据“检索资料”中的内容回答。
-2. 回答语言必须与问题语言保持一致：英文问题用英文回答，中文问题用中文回答。
-3. 如果检索资料中包含相关章节、定义、解释、例子或上下文，可以基于这些资料进行简要归纳。
-4. 如果检索资料与问题明显无关，或无法支持回答，请回答“未找到参考资料”。
-5. 回答中应给出引用来源，至少包含来源文件和页码。
-6. 不要编造资料中没有出现的信息。
-7. 不要输出思考过程。
+Answer only from the retrieved context. Do not use outside knowledge.
 
-问题：
+Rules:
+1. If any retrieved passage contains a sentence that directly answers the question, answer briefly from that passage and cite source file plus page.
+2. Treat a passage as supporting evidence when it directly contains the requested fact, even if the wording differs from the question.
+3. If the retrieved context is unrelated to the question or does not contain the requested fact, output exactly:
+Answer:
+No supporting reference found.
+References:
+- No supporting reference found.
+4. Use the same language as the question when the context supports an answer.
+5. Do not invent facts that are absent from the retrieved context.
+6. Do not output chain-of-thought, reasoning tags, /think, or </think>.
+
+Question:
 {question}
 
-检索资料：
+Retrieved context:
 {context}
 
-请按以下格式回答：
+Return only this format:
 Answer:
 References:
 """
@@ -68,12 +74,12 @@ def format_docs(docs):
 
         parts.append(
             f"[{i}]\n"
-            f"来源文件: {source}\n"
-            f"页码: {page}\n"
-            f"引用锚点: {anchor}\n"
-            f"知识块ID: {chunk_id}\n"
-            f"内容类型: {content_type}\n"
-            f"正文:\n{text}"
+            f"Source file: {source}\n"
+            f"Page: {page}\n"
+            f"Citation anchor: {anchor}\n"
+            f"Chunk ID: {chunk_id}\n"
+            f"Content type: {content_type}\n"
+            f"Text:\n{text}"
         )
 
     return "\n\n".join(parts)
@@ -87,7 +93,11 @@ def safe_count_tokens(text: str, tokenizer):
 
 
 def main():
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    pipeline_paths = resolve_system_pipeline_paths()
+    eval_path = pipeline_paths.eval_path
+    output_path = pipeline_paths.output_path
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print("Loading tokenizer...")
     try:
@@ -123,11 +133,12 @@ def main():
         temperature=0,
         num_ctx=4096,
     )
+    use_fallback_only = False
 
     prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
 
-    with OUTPUT_PATH.open("w", encoding="utf-8") as out:
-        for item in load_eval_questions(EVAL_PATH):
+    with output_path.open("w", encoding="utf-8") as out:
+        for item in load_eval_questions(eval_path):
             question = item["question"]
             print(f"\nRunning system RAG question: {item['id']}")
 
@@ -146,8 +157,22 @@ def main():
                 "context": context,
             })
 
-            response = llm.invoke(messages)
-            answer = response.content
+            if use_fallback_only:
+                answer = build_extractive_fallback_answer(docs)
+                response_mode = "extractive_fallback"
+            else:
+                try:
+                    response = llm.invoke(messages)
+                    answer = clean_ollama_answer(response.content)
+                    response_mode = "ollama"
+                except Exception as exc:
+                    print(
+                        "Ollama invocation failed, switching to extractive fallback. "
+                        f"Reason: {exc!r}"
+                    )
+                    use_fallback_only = True
+                    answer = build_extractive_fallback_answer(docs)
+                    response_mode = "extractive_fallback"
 
             elapsed = time.perf_counter() - start
 
@@ -196,14 +221,16 @@ def main():
                 "context_compression": False,
                 "dynamic_top_k": False,
                 "lora": False,
+                "response_mode": response_mode,
             }
 
             out.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-            print(f"Answer preview: {answer[:160]}")
+            preview = sanitize_for_console(answer[:160], sys.stdout.encoding)
+            print(f"Answer preview: {preview}")
             print(f"Latency: {elapsed:.2f}s | Tokens: {total_tokens}")
 
-    print(f"\nSystem RAG results saved to: {OUTPUT_PATH}")
+    print(f"\nSystem RAG results saved to: {output_path}")
 
 
 if __name__ == "__main__":
