@@ -8,7 +8,7 @@ from pathlib import Path
 import fitz
 
 from kd_agent.agent import answer_question
-from kd_agent.chunking import KnowledgeChunk, adaptive_chunk_documents
+from kd_agent.chunking import KnowledgeChunk, semantic_chunk_documents
 from kd_agent.indexing import LocalTfidfIndex, save_index
 from kd_agent.ingestion import ParsedDocument
 
@@ -88,7 +88,7 @@ def load_or_build_chinese_ocr_chunks() -> list[KnowledgeChunk]:
             text=text,
             metadata={'page': row['page'], 'language': 'zh', 'parse_method': 'tesseract_ocr'},
         ))
-    return adaptive_chunk_documents(docs, target_tokens=260, min_tokens=60, overlap_tokens=20)
+    return semantic_chunk_documents(docs, target_tokens=260, min_tokens=60, overlap_tokens=20)
 
 
 def load_english_clean_chunks(limit: int | None = None) -> list[KnowledgeChunk]:
@@ -240,12 +240,13 @@ def main() -> None:
 
     n = max(1, len(rows))
     metrics = {
-        'test_name': 'bilingual_cn_ocr_en_pdf_eval',
+        'test_name': 'bilingual_cn_ocr_en_pdf_semantic_chunk_eval',
         'raw_dir': str(RAW_DIR),
         'chinese_ocr_pages': CN_OCR_PAGES,
         'zh_chunks': len(zh_chunks),
         'en_chunks': len(en_chunks),
         'total_chunks': len(chunks),
+        'chunking_strategy': 'semantic_lexical_boundary',
         'num_questions': len(rows),
         'language_match_rate': sum(r['language_match'] for r in rows) / n,
         'avg_answer_term_recall': sum(r['answer_term_recall'] for r in rows) / n,
@@ -259,7 +260,8 @@ def main() -> None:
     lines = ['# 双语计算机教材评测报告', '', '## 数据源', '',
              '- 中文教材：`cs-cn.pdf`，扫描版，使用 Tesseract `chi_sim+eng` 对代表页 OCR 后入索引。',
              '- 英文教材：`cs-eg.pdf`，使用原系统清洗后的高质量文本 chunk 入索引。',
-             '- 评测要求：中文问题必须中文回答，英文问题必须英文回答；检索索引同时包含两本教材，并通过术语扩展支持跨语言检索。', '',
+             '- 评测要求：中文问题必须中文回答，英文问题必须英文回答；检索索引同时包含两本教材，并通过术语扩展支持跨语言检索。',
+             '- 分块策略：中文 OCR 文本使用语义边界分块；英文教材使用已清洗的高质量系统 chunk。', '',
              '## 指标', '']
     for key, label in [
         ('zh_chunks', '中文 OCR chunk 数'), ('en_chunks', '英文文本 chunk 数'), ('total_chunks', '总 chunk 数'),
