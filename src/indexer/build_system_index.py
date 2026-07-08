@@ -18,7 +18,7 @@ CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 PERSIST_DIR = PROJECT_ROOT / "data" / "indexes" / "chroma_system"
 
 COLLECTION_NAME = "system_rag"
-EMBEDDING_MODEL = "BAAI/bge-small-zh-v1.5"
+EMBEDDING_MODEL = os.getenv("SYSTEM_EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5")
 
 INCLUDE_LOW_QUALITY = os.getenv("INCLUDE_LOW_QUALITY", "0") == "1"
 
@@ -91,7 +91,11 @@ def load_chunks(path: Path) -> List[Document]:
                 "content_role": safe_metadata_value(item.get("content_role")),
                 "parse_method": safe_metadata_value(item.get("parse_method")),
                 "needs_ocr": safe_metadata_value(item.get("needs_ocr")),
+                "ocr_applied": safe_metadata_value(item.get("ocr_applied")),
                 "is_scanned_or_image_page": safe_metadata_value(item.get("is_scanned_or_image_page")),
+                "originally_scanned_or_image_page": safe_metadata_value(
+                    item.get("originally_scanned_or_image_page")
+                ),
                 "citation_anchor": safe_metadata_value(item.get("citation_anchor")),
                 "chunk_index_in_page": safe_metadata_value(item.get("chunk_index_in_page")),
                 "text_length": safe_metadata_value(item.get("text_length")),

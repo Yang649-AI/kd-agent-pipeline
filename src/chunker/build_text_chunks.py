@@ -1,5 +1,9 @@
 import json
+import os
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 import sys
 from typing import Dict, List, Tuple
@@ -11,6 +15,16 @@ from common.paths import PROJECT_ROOT
 INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "parsed_pages.jsonl"
 CHUNK_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 OCR_TODO_PATH = PROJECT_ROOT / "data" / "processed" / "ocr_todo_pages.jsonl"
+OCR_CACHE_PATHS = [
+    PROJECT_ROOT / "data" / "processed" / "ocr_pages.jsonl",
+    PROJECT_ROOT / "data" / "processed" / "cs_cn_ocr_selected_pages.jsonl",
+]
+OCR_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "ocr_pages.jsonl"
+
+ENABLE_OCR = os.getenv("ENABLE_OCR", "1") == "1"
+OCR_LANG = os.getenv("OCR_LANG", "chi_sim+eng")
+OCR_MAX_PAGES = int(os.getenv("OCR_MAX_PAGES", "0"))
+OCR_RENDER_SCALE = float(os.getenv("OCR_RENDER_SCALE", "1.8"))
 
 MAX_CHARS = 1200
 MIN_CHARS = 120
@@ -22,6 +36,87 @@ def load_jsonl(path: Path):
         for line in f:
             if line.strip():
                 yield json.loads(line)
+
+
+def load_ocr_cache(paths: List[Path]) -> Dict[Tuple[str, int], str]:
+    cache: Dict[Tuple[str, int], str] = {}
+
+    for path in paths:
+        if not path.exists():
+            continue
+
+        for item in load_jsonl(path):
+            source_file = item.get("source_file")
+            text = (item.get("text") or "").strip()
+            if not source_file or not text:
+                continue
+
+            try:
+                page = int(item.get("page"))
+            except (TypeError, ValueError):
+                continue
+
+            cache[(source_file, page)] = text
+            if page > 0:
+                # Some caches record 1-based pages while parsed_pages.jsonl uses 0-based indexes.
+                cache.setdefault((source_file, page - 1), text)
+
+    return cache
+
+
+def get_cached_ocr_text(page_record: Dict, cache: Dict[Tuple[str, int], str]) -> str:
+    try:
+        page = int(page_record.get("page"))
+    except (TypeError, ValueError):
+        return ""
+    return cache.get((page_record.get("source_file", ""), page), "")
+
+
+def run_tesseract_ocr(page_record: Dict) -> str:
+    if not ENABLE_OCR or shutil.which("tesseract") is None:
+        return ""
+
+    try:
+        import fitz  # PyMuPDF
+    except Exception:
+        return ""
+
+    source_path = Path(page_record["source_path"])
+    page_index = int(page_record["page"])
+
+    try:
+        with fitz.open(source_path) as doc:
+            page = doc[page_index]
+            pix = page.get_pixmap(
+                matrix=fitz.Matrix(OCR_RENDER_SCALE, OCR_RENDER_SCALE),
+                alpha=False,
+            )
+            with tempfile.NamedTemporaryFile(suffix=".png") as img:
+                pix.save(img.name)
+                cp = subprocess.run(
+                    ["tesseract", img.name, "stdout", "-l", OCR_LANG, "--psm", "6"],
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=120,
+                    check=False,
+                )
+        return normalize_text(cp.stdout)
+    except Exception:
+        return ""
+
+
+def page_record_with_ocr_text(page_record: Dict, text: str, parse_method: str) -> Dict:
+    updated = dict(page_record)
+    updated["text"] = text
+    updated["text_length"] = len(text)
+    updated["parse_method"] = parse_method
+    updated["needs_ocr"] = False
+    updated["ocr_applied"] = True
+    updated["originally_scanned_or_image_page"] = bool(
+        page_record.get("is_scanned_or_image_page", False)
+    )
+    return updated
 
 
 def normalize_text(text: str) -> str:
@@ -440,7 +535,11 @@ def build_chunks_for_page(page_record: Dict) -> List[Dict]:
             "content_role": content_role,
             "parse_method": page_record.get("parse_method", "pymupdf_text"),
             "needs_ocr": bool(page_record.get("needs_ocr", False)),
+            "ocr_applied": bool(page_record.get("ocr_applied", False)),
             "is_scanned_or_image_page": bool(page_record.get("is_scanned_or_image_page", False)),
+            "originally_scanned_or_image_page": bool(
+                page_record.get("originally_scanned_or_image_page", False)
+            ),
             "citation_anchor": page_record["citation_anchor"],
             "text": cleaned_chunk_text,
             "text_length": len(cleaned_chunk_text),
@@ -464,31 +563,66 @@ def main():
 
     total_pages = 0
     text_pages = 0
-    ocr_pages = 0
+    ocr_todo_pages = 0
+    ocr_chunked_pages = 0
+    ocr_runtime_pages = 0
     total_chunks = 0
     low_quality_chunks = 0
     role_counter: Dict[str, int] = {}
 
+    ocr_cache = load_ocr_cache(OCR_CACHE_PATHS)
+
     with CHUNK_OUTPUT_PATH.open("w", encoding="utf-8") as chunk_out, \
-         OCR_TODO_PATH.open("w", encoding="utf-8") as ocr_out:
+         OCR_TODO_PATH.open("w", encoding="utf-8") as ocr_out, \
+         OCR_OUTPUT_PATH.open("a", encoding="utf-8") as ocr_cache_out:
 
         for page_record in load_jsonl(INPUT_PATH):
             total_pages += 1
 
             if page_record.get("needs_ocr"):
-                ocr_pages += 1
-                ocr_out.write(json.dumps({
-                    "source_file": page_record["source_file"],
-                    "source_path": page_record["source_path"],
-                    "discipline": page_record["discipline"],
-                    "page": page_record["page"],
-                    "content_type": "ocr_todo_page",
-                    "needs_ocr": True,
-                    "citation_anchor": page_record["citation_anchor"],
-                    "ocr_status": "pending",
-                    "text_length": page_record.get("text_length", 0),
-                }, ensure_ascii=False) + "\n")
-                continue
+                cached_text = get_cached_ocr_text(page_record, ocr_cache)
+                if cached_text:
+                    page_record = page_record_with_ocr_text(
+                        page_record,
+                        cached_text,
+                        "tesseract_ocr_cached",
+                    )
+                    ocr_chunked_pages += 1
+                elif ENABLE_OCR and (OCR_MAX_PAGES <= 0 or ocr_runtime_pages < OCR_MAX_PAGES):
+                    runtime_text = run_tesseract_ocr(page_record)
+                    if runtime_text:
+                        page_record = page_record_with_ocr_text(
+                            page_record,
+                            runtime_text,
+                            "tesseract_ocr",
+                        )
+                        ocr_cache_out.write(json.dumps({
+                            "source_file": page_record["source_file"],
+                            "source_path": page_record["source_path"],
+                            "discipline": page_record["discipline"],
+                            "page": page_record["page"],
+                            "text": runtime_text,
+                            "text_length": len(runtime_text),
+                            "parse_method": "tesseract_ocr",
+                            "ocr_lang": OCR_LANG,
+                        }, ensure_ascii=False) + "\n")
+                        ocr_runtime_pages += 1
+                        ocr_chunked_pages += 1
+
+                if page_record.get("needs_ocr"):
+                    ocr_todo_pages += 1
+                    ocr_out.write(json.dumps({
+                        "source_file": page_record["source_file"],
+                        "source_path": page_record["source_path"],
+                        "discipline": page_record["discipline"],
+                        "page": page_record["page"],
+                        "content_type": "ocr_todo_page",
+                        "needs_ocr": True,
+                        "citation_anchor": page_record["citation_anchor"],
+                        "ocr_status": "pending",
+                        "text_length": page_record.get("text_length", 0),
+                    }, ensure_ascii=False) + "\n")
+                    continue
 
             text_pages += 1
             chunks = build_chunks_for_page(page_record)
@@ -505,8 +639,10 @@ def main():
 
     print("Text chunking finished.")
     print(f"Input pages: {total_pages}")
-    print(f"Text pages: {text_pages}")
-    print(f"OCR todo pages: {ocr_pages}")
+    print(f"Text/OCR chunked pages: {text_pages}")
+    print(f"OCR pages converted to chunks: {ocr_chunked_pages}")
+    print(f"OCR pages processed at runtime: {ocr_runtime_pages}")
+    print(f"OCR todo pages: {ocr_todo_pages}")
     print(f"Generated chunks: {total_chunks}")
     print(f"Low-quality chunks: {low_quality_chunks}")
     print(f"High-quality chunks: {total_chunks - low_quality_chunks}")
