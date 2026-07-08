@@ -8,13 +8,14 @@ target_base_model:
   fine_tunable: true
   note: >
     This is the target base model required by the formal system.
-    The current system RAG runner may still use a temporary Ollama text model
-    for pipeline validation before Qwen3-VL-8B deployment is completed.
+    The system runner defaults to the local Ollama model qwen3-vl-8b-system;
+    set SYSTEM_MODEL_NAME only when an explicit validation override is needed.
 
 runtime:
   engine: ollama
   target_model_name: qwen3-vl-8b-system
-  current_validation_model: qwen-8b-instruct-baseline
+  default_runner_model: qwen3-vl-8b-system
+  tokenizer_name: Qwen/Qwen3-VL-8B-Instruct
 
 knowledge_pipeline:
   parser: src/parser/parse_pdf_pages.py
@@ -27,6 +28,8 @@ data_paths:
   parsed_pages: data/processed/parsed_pages.jsonl
   text_chunks: data/processed/text_chunks.jsonl
   ocr_todo_pages: data/processed/ocr_todo_pages.jsonl
+  ocr_text_cache: data/processed/ocr_pages.jsonl
+  bilingual_ocr_text_cache: data/processed/cs_cn_ocr_selected_pages.jsonl
   vector_index_dir: data/indexes/chroma_system
 
 embedding:
@@ -51,8 +54,10 @@ chunk_quality_control:
     but preserve quality metadata for later reranking and filtering.
 
 multimodal_processing:
-  enabled: planned
+  enabled: partial
   scanned_pdf_detection: true
+  tesseract_ocr_for_scanned_pdf: true
+  ocr_text_cache: data/processed/ocr_pages.jsonl
   ocr_todo_list: data/processed/ocr_todo_pages.jsonl
   image_page_processing: planned
   figure_table_understanding: planned

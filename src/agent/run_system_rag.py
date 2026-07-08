@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from pathlib import Path
 
@@ -17,7 +18,7 @@ EVAL_PATH = PROJECT_ROOT / "data" / "eval" / "baseline_smoke_questions.jsonl"
 OUTPUT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"
 PERSIST_DIR = str(PROJECT_ROOT / "data" / "indexes" / "chroma_system")
 
-MODEL_NAME = "qwen-8b-instruct-baseline"
+MODEL_NAME = os.getenv("SYSTEM_MODEL_NAME", "qwen3-vl-8b-system")
 TOP_K = 4
 
 SYSTEM_PROMPT = """你是一个基于本地资料构建的垂直领域智能体。
@@ -90,7 +91,7 @@ def main():
     print("Loading tokenizer...")
     try:
         tokenizer = AutoTokenizer.from_pretrained(
-            "Qwen/Qwen3-8B",
+            os.getenv("SYSTEM_TOKENIZER_NAME", "Qwen/Qwen3-VL-8B-Instruct"),
             trust_remote_code=True,
             cache_dir=str(PROJECT_ROOT / "cache" / "huggingface"),
         )
