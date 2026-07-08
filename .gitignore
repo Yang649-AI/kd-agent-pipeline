@@ -38,6 +38,7 @@ data/indexes/
 # Outputs and logs
 outputs/
 logs/
+deliverables/
 *.log
 
 # Vector databases

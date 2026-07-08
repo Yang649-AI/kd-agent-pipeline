@@ -17,19 +17,19 @@ This report summarizes the current formal system pipeline validation. The pipeli
 
 ## 3. Data Processing Summary
 
-- Total text chunks: 2875
-- High-quality chunks: 1572
+- Total text chunks: 2906
+- High-quality chunks: 1603
 - Low-quality chunks: 1303
-- OCR todo pages: 449
+- OCR todo pages: 421
 
 ### Content Role Distribution
 
 | Content role | Count |
 |---|---:|
-| explanatory_text | 1503 |
+| explanatory_text | 1533 |
 | figure_or_caption | 896 |
 | exercise_or_problem | 371 |
-| short_explanatory_text | 69 |
+| short_explanatory_text | 70 |
 | table_or_layout_fragment | 36 |
 
 ### Low-quality Reason Distribution
@@ -63,7 +63,7 @@ This report summarizes the current formal system pipeline validation. The pipeli
 |---|---|---|---:|---|
 | cs_eg_001 | What is virtual memory in computer systems? | answered | 4 | cs-eg.pdf#page=909 |
 | cs_eg_002 | What is a process in an operating system? | answered | 4 | cs-eg.pdf#page=701 |
-| cs_eg_003 | What is cache memory? | answered | 4 | cs-eg.pdf#page=663 |
+| cs_eg_003 | What is cache memory? | answered | 4 | cs-eg.pdf#page=671 |
 | cs_eg_004 | What is exceptional control flow? | answered | 4 | cs-eg.pdf#page=810 |
 
 ## 6. Notes
