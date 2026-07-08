@@ -9,10 +9,11 @@
 - `kd_agent/`：轻量、可离线运行的正式交付管线，包含解析、语义分块、本地 TF-IDF 检索、上下文压缩、引用约束回答和评测报告生成。
 - `scripts/13_run_bilingual_raw_pdf_eval.py`：双语 raw PDF 评测脚本，可把中文扫描教材 OCR 片段和英文教材文本 chunk 放入同一个索引。
 - `configs/dataset_schema.yaml`：三学科正式数据集布局与标注字段规范。
+- 正式 Qwen3-VL-8B 系统：已完成 GGUF/Ollama 接入、OCR chunk 入索引、Chroma 检索和 4 题英文 smoke test；双语 Qwen3-VL 正式复测仍待补齐。
 
 ## 最新双语评测
 
-数据源位于实际运行目录：`/root/autodl-tmp/kd_agent_pipeline/data/raw/cs/`。
+数据源位于实际运行目录：`data/raw/cs/`，也可通过 `KD_AGENT_PROJECT_ROOT` 指定项目根目录。
 
 - 中文教材：`cs-cn.pdf`，扫描版，使用 Tesseract `chi_sim+eng` 对代表页 OCR。
 - 英文教材：`cs-eg.pdf`，使用原系统清洗后的高质量文本 chunk。
@@ -42,7 +43,7 @@ bash run.sh
 运行双语 raw PDF 评测：
 
 ```bash
-PYTHONPATH=$(pwd) /root/autodl-tmp/kd_agent_pipeline/envs/kd_agent/bin/python scripts/13_run_bilingual_raw_pdf_eval.py
+PYTHONPATH=$(pwd) python scripts/13_run_bilingual_raw_pdf_eval.py
 ```
 
 首次运行双语评测需要系统中有 Tesseract 和中英文语言包：
@@ -103,7 +104,7 @@ bash scripts/run_system_rag.sh
 双语 raw PDF 评测：
 
 ```bash
-PYTHONPATH=$(pwd) /root/autodl-tmp/kd_agent_pipeline/envs/kd_agent/bin/python scripts/13_run_bilingual_raw_pdf_eval.py
+PYTHONPATH=$(pwd) python scripts/13_run_bilingual_raw_pdf_eval.py
 ```
 
 ## 报告索引

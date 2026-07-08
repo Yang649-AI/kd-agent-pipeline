@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
+import os
 from typing import Dict, List
 
 import fitz  # PyMuPDF
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "parsed_pages.jsonl"
 

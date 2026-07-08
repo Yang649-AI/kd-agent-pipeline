@@ -1,9 +1,10 @@
 import json
 from pathlib import Path
+import os
 from statistics import mean
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[1]))
 
 BASELINE_RESULT_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_results.jsonl"
 SYSTEM_RESULT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"

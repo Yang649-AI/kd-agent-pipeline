@@ -1,6 +1,7 @@
 import json
 import time
 from pathlib import Path
+import os
 
 import torch
 from transformers import AutoTokenizer
@@ -11,7 +12,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[1]))
 
 EVAL_PATH = PROJECT_ROOT / "data" / "eval" / "baseline_smoke_questions.jsonl"
 OUTPUT_PATH = PROJECT_ROOT / "outputs" / "baseline" / "baseline_results.jsonl"

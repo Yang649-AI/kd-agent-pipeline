@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_ROOT="/root/autodl-tmp/kd_agent_pipeline"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${KD_AGENT_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 MODEL_NAME="qwen3-vl-8b-system"
 MODEL_FILE="$PROJECT_ROOT/configs/Modelfile.system"
 OLLAMA_MODEL_DIR="$PROJECT_ROOT/models/ollama"
@@ -22,6 +23,9 @@ fi
 
 echo "Checking FROM model path in Modelfile..."
 FROM_PATH=$(grep "^FROM " "$MODEL_FILE" | awk '{print $2}')
+if [[ "$FROM_PATH" != /* ]]; then
+  FROM_PATH="$PROJECT_ROOT/${FROM_PATH#./}"
+fi
 
 if [ ! -f "$FROM_PATH" ]; then
   echo "ERROR: Base model file not found:"

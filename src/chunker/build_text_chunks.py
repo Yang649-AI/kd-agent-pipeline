@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "parsed_pages.jsonl"
 CHUNK_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"

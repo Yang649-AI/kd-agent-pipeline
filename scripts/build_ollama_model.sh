@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_ROOT="/root/autodl-tmp/kd_agent_pipeline"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${KD_AGENT_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 MODEL_NAME="qwen-8b-instruct-baseline"
 MODELFILE="$PROJECT_ROOT/configs/Modelfile.baseline"
 OLLAMA_MODEL_DIR="$PROJECT_ROOT/models/ollama"
 
 export OLLAMA_MODELS="$OLLAMA_MODEL_DIR"
 
+cd "$PROJECT_ROOT"
 echo "Project root: $PROJECT_ROOT"
 echo "Ollama model dir: $OLLAMA_MODELS"
 echo "Model name: $MODEL_NAME"

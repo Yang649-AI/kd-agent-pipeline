@@ -13,9 +13,9 @@ from kd_agent.indexing import LocalTfidfIndex, save_index
 from kd_agent.ingestion import ParsedDocument
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REAL_PROJECT = Path('/root/autodl-tmp/kd_agent_pipeline')
-RAW_DIR = Path(__import__('os').environ.get('RAW_CS_DIR', DEFAULT_REAL_PROJECT / 'data/raw/cs'))
-PROCESSED_CHUNKS = Path(__import__('os').environ.get('PROCESSED_CHUNKS', DEFAULT_REAL_PROJECT / 'data/processed/text_chunks.jsonl'))
+PROJECT_ROOT = Path(__import__('os').environ.get('KD_AGENT_PROJECT_ROOT', PROJECT_ROOT))
+RAW_DIR = Path(__import__('os').environ.get('RAW_CS_DIR', PROJECT_ROOT / 'data/raw/cs'))
+PROCESSED_CHUNKS = Path(__import__('os').environ.get('PROCESSED_CHUNKS', PROJECT_ROOT / 'data/processed/text_chunks.jsonl'))
 EVAL_PATH = PROJECT_ROOT / 'data/eval/cs_bilingual_questions.jsonl'
 INDEX_PATH = PROJECT_ROOT / 'data/indexes/kd_agent_cs_bilingual/index.json'
 RESULT_PATH = PROJECT_ROOT / 'outputs/kd_agent/bilingual_cs_results.jsonl'

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-export PROJECT_ROOT=/root/autodl-tmp/kd_agent_pipeline
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PROJECT_ROOT="${KD_AGENT_PROJECT_ROOT:-$SCRIPT_DIR}"
 
 export PIP_CACHE_DIR=$PROJECT_ROOT/cache/pip
 

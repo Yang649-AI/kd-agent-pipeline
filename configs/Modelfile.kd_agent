@@ -1,4 +1,4 @@
-FROM /root/autodl-tmp/kd_agent_pipeline/models/gguf/Qwen3-VL-8B-Instruct-Q4_K_M.gguf
+FROM ./models/gguf/Qwen3-VL-8B-Instruct-Q4_K_M.gguf
 
 PARAMETER temperature 0
 PARAMETER num_ctx 4096

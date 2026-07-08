@@ -12,7 +12,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 EVAL_PATH = PROJECT_ROOT / "data" / "eval" / "baseline_smoke_questions.jsonl"
 OUTPUT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"

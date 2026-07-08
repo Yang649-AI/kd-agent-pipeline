@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_ROOT="/root/autodl-tmp/kd_agent_pipeline"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${KD_AGENT_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 CONDA_ENV="$PROJECT_ROOT/envs/kd_agent"
 
 cd "$PROJECT_ROOT"
 
 source "$PROJECT_ROOT/setup_paths.sh"
 
-if [ -f ~/miniconda3/etc/profile.d/conda.sh ]; then
+PYTHON_BIN="${PYTHON_BIN:-python}"
+if [ -d "$CONDA_ENV" ] && [ -f ~/miniconda3/etc/profile.d/conda.sh ]; then
   source ~/miniconda3/etc/profile.d/conda.sh
+  conda activate "$CONDA_ENV"
 fi
 
-conda activate "$CONDA_ENV"
-
 echo "Running PDF parser..."
-python src/parser/parse_pdf_pages.py
+"$PYTHON_BIN" src/parser/parse_pdf_pages.py
 
 echo "PDF parsing finished."
 echo "Parsed result path:"

@@ -10,7 +10,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 
-PROJECT_ROOT = Path("/root/autodl-tmp/kd_agent_pipeline")
+PROJECT_ROOT = Path(os.environ.get("KD_AGENT_PROJECT_ROOT", Path(__file__).resolve().parents[2]))
 
 CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 PERSIST_DIR = PROJECT_ROOT / "data" / "indexes" / "chroma_system"
