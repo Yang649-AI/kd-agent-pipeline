@@ -19,6 +19,7 @@ OUTPUT_PATH = PROJECT_ROOT / "outputs" / "system" / "system_results.jsonl"
 PERSIST_DIR = str(PROJECT_ROOT / "data" / "indexes" / "chroma_system")
 
 MODEL_NAME = os.getenv("SYSTEM_MODEL_NAME", "qwen3-vl-8b-system")
+EMBEDDING_MODEL = os.getenv("SYSTEM_EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5")
 TOP_K = 4
 
 SYSTEM_PROMPT = """你是一个基于本地资料构建的垂直领域智能体。
@@ -104,7 +105,7 @@ def main():
     print("Embedding device:", device)
 
     embeddings = HuggingFaceEmbeddings(
-        model_name="BAAI/bge-small-zh-v1.5",
+        model_name=EMBEDDING_MODEL,
         model_kwargs={"device": device},
         encode_kwargs={"normalize_embeddings": True},
     )

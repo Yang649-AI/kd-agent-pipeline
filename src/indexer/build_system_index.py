@@ -16,7 +16,7 @@ CHUNK_PATH = PROJECT_ROOT / "data" / "processed" / "text_chunks.jsonl"
 PERSIST_DIR = PROJECT_ROOT / "data" / "indexes" / "chroma_system"
 
 COLLECTION_NAME = "system_rag"
-EMBEDDING_MODEL = "BAAI/bge-small-zh-v1.5"
+EMBEDDING_MODEL = os.getenv("SYSTEM_EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5")
 
 INCLUDE_LOW_QUALITY = os.getenv("INCLUDE_LOW_QUALITY", "0") == "1"
 
