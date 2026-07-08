@@ -9,7 +9,7 @@
 - `kd_agent/`：轻量、可离线运行的正式交付管线，包含解析、语义分块、本地 TF-IDF 检索、上下文压缩、引用约束回答和评测报告生成。
 - `scripts/13_run_bilingual_raw_pdf_eval.py`：双语 raw PDF 评测脚本，可把中文扫描教材 OCR 片段和英文教材文本 chunk 放入同一个索引。
 - `configs/dataset_schema.yaml`：三学科正式数据集布局与标注字段规范。
-- 正式 Qwen3-VL-8B 系统：已完成 GGUF/Ollama 接入、OCR chunk 入索引、Chroma 检索和 4 题英文 smoke test；双语 Qwen3-VL 正式复测仍待补齐。
+- 正式 Qwen3-VL-8B 系统：已完成 GGUF/Ollama 接入、OCR chunk 入索引、Chroma 检索和 8 题双语正式评测；中文 OCR 教材与英文教材均已进入正式回答链路。
 
 ## 最新双语评测
 
@@ -115,6 +115,7 @@ PYTHONPATH=$(pwd) python scripts/13_run_bilingual_raw_pdf_eval.py
 - `reports/kd_agent_evaluation.md`：轻量 `kd_agent` 样例评测。
 - `reports/raw_pdf_clean_cs_evaluation.md`：英文 raw PDF 清洗 chunk 评测。
 - `reports/bilingual_cs_evaluation.md`：中文 OCR + 英文文本双语联合评测。
+- `reports/system_bilingual_evaluation.md`：正式 Qwen3-VL 双语系统评测。
 
 ## Git 与生成物约定
 

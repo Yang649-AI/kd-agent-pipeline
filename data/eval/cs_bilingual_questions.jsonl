@@ -1,8 +1,8 @@
-{"id":"zh_ml_001","language":"zh","question":"什么是假设空间？","answer_terms":["假设空间","假设","搜索"]}
-{"id":"zh_ml_002","language":"zh","question":"查准率和查全率分别关注什么？","answer_terms":["查准率","查全率","比例"]}
-{"id":"zh_ml_003","language":"zh","question":"线性回归试图学习什么样的函数？","answer_terms":["线性回归","函数","最小二乘"]}
-{"id":"zh_cross_001","language":"zh","question":"虚拟内存提供了哪些能力？","answer_terms":["虚拟内存","主存","保护"]}
-{"id":"en_cs_001","language":"en","question":"What capabilities does virtual memory provide?","answer_terms":["virtual memory","main memory","protection"]}
-{"id":"en_cs_002","language":"en","question":"What is Amdahl's law and how does it limit total speedup?","answer_terms":["Amdahl","speedup","fraction"]}
-{"id":"en_cs_003","language":"en","question":"What is exceptional control flow in a computer system?","answer_terms":["exceptional control flow","exceptions","system"]}
-{"id":"en_cross_001","language":"en","question":"What is a hypothesis space in machine learning?","answer_terms":["hypothesis space","hypotheses","search"]}
+{"id": "zh_ml_001", "language": "zh", "question": "什么是假设空间？", "answer_terms": ["假设空间", "假设", "搜索"], "expected_sources": ["cs-cn.pdf"]}
+{"id": "zh_ml_002", "language": "zh", "question": "查准率和查全率分别关注什么？", "answer_terms": ["查准率", "查全率", "比例"], "expected_sources": ["cs-cn.pdf"]}
+{"id": "zh_ml_003", "language": "zh", "question": "线性回归试图学习什么样的函数？", "answer_terms": ["线性回归", "函数", "最小二乘"], "expected_sources": ["cs-cn.pdf"]}
+{"id": "zh_cross_001", "language": "zh", "question": "虚拟内存提供了哪些能力？", "answer_terms": ["虚拟内存", "主存", "保护"], "expected_sources": ["cs-eg.pdf"]}
+{"id": "en_cs_001", "language": "en", "question": "What capabilities does virtual memory provide?", "answer_terms": ["virtual memory", "main memory", "protection"], "expected_sources": ["cs-eg.pdf"]}
+{"id": "en_cs_002", "language": "en", "question": "What is Amdahl's law and how does it limit total speedup?", "answer_terms": ["Amdahl", "speedup", "fraction"], "expected_sources": ["cs-eg.pdf"]}
+{"id": "en_cs_003", "language": "en", "question": "What is exceptional control flow in a computer system?", "answer_terms": ["exceptional control flow", "exceptions", "system"], "expected_sources": ["cs-eg.pdf"]}
+{"id": "en_cross_001", "language": "en", "question": "What is a hypothesis space in machine learning?", "answer_terms": ["hypothesis space", "hypotheses", "search"], "expected_sources": ["cs-cn.pdf"]}
